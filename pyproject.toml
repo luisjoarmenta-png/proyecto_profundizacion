@@ -16,6 +16,7 @@ dependencies = [
     "pandas<4",
     "scikit-learn>=1.9.1",
     "seaborn>=0.13.2",
+    "statsmodels>=0.15.0",
 ]
 
 [project.scripts]
