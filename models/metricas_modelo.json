@@ -1,0 +1,79 @@
+{
+  "objetivo": "viral",
+  "variables": [
+    "release_year",
+    "duration_sec",
+    "danceability",
+    "energy",
+    "valence",
+    "tempo_bpm",
+    "acousticness",
+    "instrumentalness",
+    "speechiness",
+    "liveness",
+    "loudness_db",
+    "genre",
+    "artist"
+  ],
+  "variables_excluidas": {
+    "streams": "posible fuga: popularidad ya observada",
+    "track_id": "identificador sin valor predictivo generalizable",
+    "track_name": "nombre de pista no usado como atributo"
+  },
+  "semilla": 42,
+  "tamano_total": 10000,
+  "tamano_entrenamiento": 8000,
+  "tamano_prueba": 2000,
+  "proporcion_viral": 0.3605,
+  "validacion_cruzada_entrenamiento": {
+    "baseline_clase_mayoritaria": {
+      "average_precision_media": 0.36049999999999993,
+      "average_precision_desv": 0.0002499999999999947
+    },
+    "regresion_logistica": {
+      "average_precision_media": 0.6134568354319029,
+      "average_precision_desv": 0.014231043054360579
+    },
+    "random_forest": {
+      "average_precision_media": 0.6289265493488541,
+      "average_precision_desv": 0.019058685545914982
+    }
+  },
+  "modelo_seleccionado": "random_forest",
+  "metricas_baseline_prueba": {
+    "roc_auc": 0.5,
+    "average_precision": 0.3605,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "accuracy": 0.6395,
+    "matriz_confusion": [
+      [
+        1279,
+        0
+      ],
+      [
+        721,
+        0
+      ]
+    ]
+  },
+  "metricas_prueba_umbral_0_5": {
+    "roc_auc": 0.7996473493182846,
+    "average_precision": 0.6328621768371333,
+    "precision": 0.5698711595639246,
+    "recall": 0.79750346740638,
+    "f1": 0.6647398843930635,
+    "accuracy": 0.71,
+    "matriz_confusion": [
+      [
+        845,
+        434
+      ],
+      [
+        146,
+        575
+      ]
+    ]
+  }
+}
