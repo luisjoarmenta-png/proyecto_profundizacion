@@ -1,42 +1,38 @@
-# Modelado de viralidad
+# Modelado (módulo 06)
 
-## Objetivo
+## Tipo de problema y métrica principal (y por qué)
 
-Predecir la clase `viral` (0/1) usando variables de audio, año, género y artista. El uso previsto es estimar la etiqueta a partir de atributos de la canción, no inferir causalidad.
+Es un problema de clasificación binaria supervisada. El modelo predice `viral`: 0 = no viral y 1 = viral. El objetivo operativo es ordenar canciones para priorizar cuáles pasarían a revisión editorial.
 
-## Variables y preparación
+La métrica principal es balanced accuracy, porque promedia el recall de las dos clases y evita que el resultado dependa solo de la clase mayoritaria. El Project Charter propone que sea superior a 0,50. También se mide la proporción de canciones virales entre las primeras 100 recomendaciones, comparándola con la tasa global de viralidad.
 
-- Numéricas: `release_year`, `duration_sec`, `danceability`, `energy`, `valence`, `tempo_bpm`, `acousticness`, `instrumentalness`, `speechiness`, `liveness` y `loudness_db`. Los faltantes se imputan con mediana y se escalan.
-- Categóricas: `genre` y `artist`. Los faltantes se imputan con la categoría más frecuente y se aplica one-hot encoding; categorías nuevas se ignoran al predecir.
-- Se excluyen `streams`, `track_id` y `track_name`. `streams` puede filtrar información de popularidad ya observada y producir una evaluación engañosa para predicción basada en atributos de la canción.
-- Se hace una partición estratificada 80/20 con semilla 42.
+Se usaron 11 variables numéricas de año y audio, junto con `genre`. Se excluyeron `streams` por posible fuga de información y `track_id` por ser un identificador. `track_name` ya se había quitado durante la limpieza.
 
-## Modelos y evaluación
+## Comparación (línea base vs. modelos)
 
-Como referencia se usa un baseline que siempre predice la clase mayoritaria. Se compara con regresión logística y Random Forest, estos dos con pesos balanceados. La selección se hace por `average_precision` media en validación cruzada estratificada de cinco pliegues sobre el conjunto de entrenamiento; el conjunto de prueba queda reservado para una evaluación final.
+Se comparó un DummyClassifier de clase mayoritaria con regresión logística balanceada. Se utilizó validación cruzada estratificada de cinco pliegues en el conjunto de entrenamiento.
 
-Se reportan ROC-AUC, average precision (resumen del desempeño precisión-recall), precisión, recall, F1, accuracy y matriz de confusión usando umbral 0.5 para el modelo elegido y el baseline. Por el desbalance observado en el EDA, accuracy no se debe interpretar sola. Average precision permite comparar el balance entre precision y recall sin fijar un umbral; recall es útil si interesa no dejar pasar canciones potencialmente virales, mientras precision refleja cuántas alertas de viralidad son correctas. El umbral 0.5 es inicial y puede ajustarse al conocer el costo de falsos positivos y falsos negativos.
+| Modelo | Balanced accuracy | Precisión | Recall | F1 | ROC-AUC |
+|---|---:|---:|---:|---:|---:|
+| Dummy, clase mayoritaria | 0,500 ± 0,000 | 0,000 ± 0,000 | 0,000 ± 0,000 | 0,000 ± 0,000 | 0,500 ± 0,000 |
+| Regresión logística | 0,725 ± 0,007 | 0,568 ± 0,002 | 0,786 ± 0,023 | 0,659 ± 0,008 | 0,792 ± 0,010 |
 
-## Resultado de la corrida
+El Dummy predice siempre la clase más frecuente, por eso no identifica canciones virales. La regresión logística supera esa referencia.
 
-Con 10.000 registros (8.000 entrenamiento y 2.000 prueba), la validación cruzada seleccionó Random Forest: average precision media de 0.629 frente a 0.613 para regresión logística y 0.360 para el baseline. En la prueba, Random Forest obtuvo ROC-AUC 0.800, average precision 0.633, precisión 0.570, recall 0.798, F1 0.665 y accuracy 0.710. El baseline alcanzó average precision 0.361 y accuracy 0.640; su recall es 0 porque siempre predice no viral. El modelo identifica más canciones virales, aunque genera falsos positivos (434 en la prueba), por lo que su umbral debe leerse según el uso previsto.
+## Modelo elegido y justificado
 
-## Ejecución
+Se eligió la regresión logística con `class_weight="balanced"`. En validación cruzada obtuvo balanced accuracy de 0,725, frente a 0,500 del Dummy, y ROC-AUC de 0,792, frente a 0,500. El preprocesamiento escala las variables numéricas y codifica `genre` con one-hot encoding.
 
-Con CSV local:
+## Métrica en prueba (una sola vez)
 
-```powershell
-uv run python src/train.py --csv data/raw/viral_songs.csv
-```
+Se dividieron los datos en entrenamiento y prueba con proporción 80/20, estratificación y semilla 42. La prueba contiene 2.000 canciones: 1.279 no virales y 721 virales.
 
-Sin CSV local, el script intenta descargar el dataset público con KaggleHub, como en el notebook:
+En la prueba, la regresión logística obtuvo balanced accuracy de 0,731, ROC-AUC de 0,808 y accuracy de 0,72. Para la clase viral obtuvo precisión de 0,58, recall de 0,78 y F1 de 0,67. Para la clase no viral obtuvo precisión de 0,85, recall de 0,68 y F1 de 0,76.
 
-```powershell
-uv run python src/train.py
-```
+Con las probabilidades del modelo, se ordenaron las canciones de prueba. Entre las primeras 100, 79 eran virales (79 %). La tasa global fue 36 %, equivalente a unas 36 canciones virales por cada 100 seleccionadas al azar. La lista priorizada encontró 43 más por cada 100 revisadas.
 
-Se generan `models/modelo_viral.joblib` y `models/metricas_modelo.json`. El archivo JSON conserva las métricas completas de la corrida.
+## Análisis de errores y límites
 
-## Limitaciones
+El modelo detectó aproximadamente el 78 % de las canciones virales de prueba, aunque su precisión de 0,58 indica que también marca como virales algunas canciones que no tienen esa etiqueta. Entre las primeras 100 recomendaciones, 21 no eran virales.
 
-Los nombres anonimizados/sintéticos (`Track_00001`, `Artist_1519`) limitan lo que se puede concluir sobre música real. Una partición aleatoria también puede dejar artistas repetidos entre entrenamiento y prueba. Para una validación de robustez se recomienda evaluar con particiones agrupadas por artista y explicar la definición de `viral` que utiliza la fuente.
+Estos resultados corresponden a esta partición de los datos y no garantizan el mismo desempeño con canciones nuevas. El KPI de las primeras 100 solo representa la capacidad del equipo si 100 es realmente su cupo de revisión. El modelo predice la etiqueta disponible; no demuestra qué causa la viralidad.
