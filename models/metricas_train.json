@@ -1,0 +1,70 @@
+{
+  "validacion_cruzada": {
+    "Dummy": {
+      "balanced_accuracy": {
+        "media": 0.5,
+        "desv": 0.0
+      },
+      "precision": {
+        "media": 0.0,
+        "desv": 0.0
+      },
+      "recall": {
+        "media": 0.0,
+        "desv": 0.0
+      },
+      "f1": {
+        "media": 0.0,
+        "desv": 0.0
+      },
+      "roc_auc": {
+        "media": 0.5,
+        "desv": 0.0
+      }
+    },
+    "Regresión logística": {
+      "balanced_accuracy": {
+        "media": 0.7245246322990132,
+        "desv": 0.0066221714514380905
+      },
+      "precision": {
+        "media": 0.5678675956797518,
+        "desv": 0.0018296000728809465
+      },
+      "recall": {
+        "media": 0.7864198199499326,
+        "desv": 0.02288221770604321
+      },
+      "f1": {
+        "media": 0.6593653640926688,
+        "desv": 0.007943087755037381
+      },
+      "roc_auc": {
+        "media": 0.7918544135478561,
+        "desv": 0.010418786895884583
+      }
+    }
+  },
+  "prueba_dummy": {
+    "balanced_accuracy": 0.5,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "accuracy": 0.6395,
+    "roc_auc": 0.5
+  },
+  "prueba_logistica": {
+    "balanced_accuracy": 0.7310187288743047,
+    "precision": 0.5805785123966942,
+    "recall": 0.7794729542302358,
+    "f1": 0.6654825340438129,
+    "accuracy": 0.7175,
+    "roc_auc": 0.8080450334486787
+  },
+  "kpi_top_k": {
+    "k": 100,
+    "virales_recomendadas": 79,
+    "proporcion_viral_top_k": 0.79,
+    "tasa_global_prueba": 0.3605
+  }
+}
