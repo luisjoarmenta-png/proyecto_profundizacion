@@ -24,7 +24,7 @@ uv sync
 uv run uvicorn api.main:app --reload
 ```
 
-Abre [la documentación interactiva](http://127.0.0.1:8000/docs). La API carga una vez el modelo entrenado en `models/modelo_viral_logistica.joblib`. Para regenerarlo con el CSV limpio, ejecuta `uv run python -m src.train` antes de iniciar el servicio.
+Abre [la documentación interactiva](http://127.0.0.1:8000/docs). La API carga una vez el modelo entrenado en `models/modelo_viral_logistica.joblib`. Para regenerarlo con el CSV limpio, ejecuta  `uv run python -m src.limpieza` `uv run python -m src.train` antes de iniciar el servicio.
 
 | Método y ruta | Uso |
 |---|---|
